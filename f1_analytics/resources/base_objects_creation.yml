@@ -1,0 +1,18 @@
+# Creates schema,volume for F1 analytics project
+
+resources:
+  schemas:
+    bronze_schema:
+      name: raw
+      catalog_name: ${var.catalog}
+      comment: 'Raw/Bronze Layer for F1 analytics project'
+    silver_schema:
+      name: curated
+      catalog_name: ${var.catalog}
+      comment: 'Silver Layer for F1 analytics project'
+
+  volumes:
+    raw_volume:
+      catalog_name: ${var.catalog}
+      name: f1_api_export
+      schema_name: ${resources.schemas.bronze_schema.name}
