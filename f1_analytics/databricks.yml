@@ -12,8 +12,14 @@ include:
 variables:
   catalog:
     description: Describes which catalog to use
-  schema:
-    description: The schema to use
+  raw_zone_schema_name:
+    description: Raw zone Schema Name
+  curated_zone_schema_name:
+    description: Curated zone Schema Name
+  raw_volume_name:
+    description: Unity Catalog Raw Volume Name
+  raw_volume_subdir_path:
+    description: Unity Catalog Raw Volumn Sub Directory
 
 targets:
   dev:
@@ -27,7 +33,10 @@ targets:
       host: https://dbc-0992b879-1b9c.cloud.databricks.com
     variables:
       catalog: workspace
-      schema: ${workspace.current_user.short_name}
+      raw_zone_schema_name: raw
+      curated_zone_schema_name: curated
+      raw_volume_name: f1_api_export
+      raw_volume_subdir_path: race_year_and_season_dumps
   prod:
     mode: production
     workspace:
@@ -36,4 +45,7 @@ targets:
       root_path: /Workspace/PROD/.bundle/${bundle.name}/${bundle.target}
     variables:
       catalog: workspace
-      schema: prod
+      raw_zone_schema_name: raw
+      curated_zone_schema_name: curated
+      raw_volume_name: f1_api_export
+      raw_volume_subdir_path: race_year_and_season_dumps
