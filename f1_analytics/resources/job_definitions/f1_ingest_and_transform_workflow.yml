@@ -25,7 +25,7 @@ resources:
         # Step 1: Execute Bronze ingestion notebook
         - task_key: bronze-ingestion
           notebook_task:
-            notebook_path: ../../src/f1_analytics_etl/ingest_source_data
+            notebook_path: ../../src/ingestion/ingest_source_data.ipynb
             source: WORKSPACE
             base_parameters:
               f1_season_year: "{{job.parameters.f1_season_year}}"
