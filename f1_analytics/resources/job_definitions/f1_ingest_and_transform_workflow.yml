@@ -31,7 +31,7 @@ resources:
               f1_season_year: "{{job.parameters.f1_season_year}}"
               f1_season_round: "{{job.parameters.f1_season_round}}"
               f1_api_export_filename_prefix: "{{job.parameters.f1_api_export_filename_prefix}}"
-              volume_root_path: /Volumes/workspace/${var.raw_zone_schema_name}/${var.raw_volume_name}
+              volume_root_path: /Volumes/${var.catalog}/${var.raw_zone_schema_name}/${var.raw_volume_name}
               volume_subdir_path: "{{job.parameters.volume_subdir_path}}"
               f1_api_base_url: "{{job.parameters.f1_api_base_url}}"
   

@@ -1,7 +1,8 @@
+import os
 from pyspark import pipelines as dp
 from pyspark.sql import functions as F
-from pyspark.sql.types import StructType, StructField, StringType
-import os
+from pyspark.sql.types import StructType
+
 
 @dp.table(name="raw_race_details")
 def load_raw_race_details():
@@ -9,24 +10,21 @@ def load_raw_race_details():
     volume_subdir_path = spark.conf.get("volume_subdir_path")
     volume_path = os.path.join(volume_root_path, volume_subdir_path)
     
-    # 1. Enforce a strict text schema since we want to read it as a raw row string
-    text_schema = StructType([
-        StructField("raw_json", StringType(), True)
-    ])
-    
-    input_df = (
-        spark.readStream
-        .format("cloudFiles")
-        .option("cloudFiles.format", "text")       # Treat the entire row/file as text
-        .option("wholetext", "true")               # Use true if a JSON file spans multiple lines
-        .schema(text_schema)                       # Explicitly provide the text schema
-        .load(volume_path)
-    )
-    
-    # 2. Rename, capture metadata, and append timestamps safely
+    ddl_schema_str = "STRUCT<api: STRING, championship: STRUCT<championshipId: STRING, championshipName: STRING, url: STRING, year: BIGINT>, race: ARRAY<STRUCT<championshipId: STRING, circuit: STRUCT<circuitId: STRING, circuitLength: STRING, circuitName: STRING, city: STRING, corners: BIGINT, country: STRING, fastestLapDriverId: STRING, fastestLapTeamId: STRING, fastestLapYear: BIGINT, firstParticipationYear: BIGINT, lapRecord: STRING, url: STRING>, fast_lap: STRUCT<fast_lap: STRING, fast_lap_driver_id: STRING, fast_lap_team_id: STRING>, laps: BIGINT, raceId: STRING, raceName: STRING, round: BIGINT, schedule: STRUCT<fp1: STRUCT<date: STRING, time: STRING>, fp2: STRUCT<date: STRING, time: STRING>, fp3: STRUCT<date: STRING, time: STRING>, qualy: STRUCT<date: STRING, time: STRING>, race: STRUCT<date: STRING, time: STRING>, sprintQualy: STRUCT<date: STRING, time: STRING>, sprintRace: STRUCT<date: STRING, time: STRING>>, teamWinner: STRUCT<constructorsChampionships: BIGINT, country: STRING, driversChampionships: BIGINT, firstAppearance: BIGINT, teamId: STRING, teamName: STRING, url: STRING>, url: STRING, winner: STRUCT<birthday: STRING, country: STRING, driverId: STRING, name: STRING, number: BIGINT, shortName: STRING, surname: STRING, url: STRING>>>, round: BIGINT, season: BIGINT, total: BIGINT, url: STRING>"
+    clean_native_schema = StructType.fromDDL(ddl_schema_str)
+
+    # 3. Read Auto Loader stream (removed conflicting options)
     final_df = (
-        input_df.withColumn("source_file_name", F.col("_metadata.file_name"))
+        spark.readStream.format("cloudFiles")
+        .option("cloudFiles.format", "json")
+        .schema(clean_native_schema)
+        .option("cloudFiles.schemaEvolutionMode", "rescue")
+        .option("rescuedDataColumn", "_rescued_data")
+        .option("pathGlobFilter", "*.json")
+        .option("recursiveFileLookup", "true")
+        .load(volume_path)
+        .withColumn("source_file_name", F.col("_metadata.file_name"))
         .withColumn("last_load_datetime", F.current_timestamp())
     )
-    
+
     return final_df
