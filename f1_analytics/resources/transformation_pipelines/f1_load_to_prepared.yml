@@ -2,8 +2,8 @@
 
 resources:
   pipelines:
-    f1_analytics_etl:
-      name: f1_analytics_etl
+    f1_load_to_prepared:
+      name: f1_load_to_prepared
       catalog: ${var.catalog}
       schema: ${resources.schemas.bronze_schema.name}
       serverless: true
@@ -11,7 +11,7 @@ resources:
 
       libraries:
         - glob:
-            include: ../../src/transformations/**
+            include: ../../src/transformations/prepared/**
       
       configuration:
         volume_root_path: /Volumes/workspace/${resources.schemas.bronze_schema.name}/${var.raw_volume_name}
