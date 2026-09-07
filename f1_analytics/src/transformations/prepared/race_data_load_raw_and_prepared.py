@@ -142,7 +142,7 @@ def load_race_teams_info():
             F.col("value.team.constructorsChampionships").cast("integer").alias("constructors_championships"),
             F.col("value.team.driversChampionships").cast("integer").alias("drivers_championships"),
             "load_date_time"
-        )
+        ).distinct()
    )
    return race_teams_df
 
