@@ -36,7 +36,7 @@ targets:
       raw_zone_schema_name: raw
       curated_zone_schema_name: curated
       raw_volume_name: f1_api_export
-      raw_volume_subdir_path: race_year_and_season_dumps
+      raw_volume_subdir_path: race_results_dumps
   prod:
     mode: production
     workspace:
@@ -48,4 +48,4 @@ targets:
       raw_zone_schema_name: raw
       curated_zone_schema_name: curated
       raw_volume_name: f1_api_export
-      raw_volume_subdir_path: race_year_and_season_dumps
+      raw_volume_subdir_path: race_results_dumps

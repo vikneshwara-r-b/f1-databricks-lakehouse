@@ -8,22 +8,22 @@ resources:
       # Job-level parameters (shared across all tasks)
       parameters:
         - name: f1_season_year
-          default: current
+          default: 2024
         - name: f1_season_round
-          default: last
+          default: 1
         - name: f1_api_export_filename_prefix
           default: f1_api_export
         - name: volume_root_path
-          default: ""
+          default: /Volumes/${var.catalog}/${var.raw_zone_schema_name}/${var.raw_volume_name}
         - name: volume_subdir_path
-          default: race_year_and_season_dumps
+          default: race_results_dumps
         - name: f1_api_base_url
           default: https://f1api.dev/api
       
       # Task definitions
       tasks:
         # Step 1: Execute Bronze ingestion notebook
-        - task_key: extract_f1_data
+        - task_key: extract_api
           notebook_task:
             notebook_path: ../../src/ingestion/extract_f1_source_data.ipynb
             source: WORKSPACE
@@ -31,17 +31,17 @@ resources:
               f1_season_year: "{{job.parameters.f1_season_year}}"
               f1_season_round: "{{job.parameters.f1_season_round}}"
               f1_api_export_filename_prefix: "{{job.parameters.f1_api_export_filename_prefix}}"
-              volume_root_path: /Volumes/${var.catalog}/${var.raw_zone_schema_name}/${var.raw_volume_name}
+              volume_root_path: "{{job.parameters.volume_root_path}}"
               volume_subdir_path: "{{job.parameters.volume_subdir_path}}"
               f1_api_base_url: "{{job.parameters.f1_api_base_url}}"
 
         # Step-2: Load F1 data into raw and prepared zone
-        - task_key: load_f1_data_into_raw_and_prepared
+        - task_key: load_into_raw_and_prepared
           max_retries: 0
           min_retry_interval_millis: 0
           retry_on_timeout: false
           depends_on:
-            - task_key: extract_f1_data
+            - task_key: extract_api
           pipeline_task:
             pipeline_id: ${resources.pipelines.f1_load_to_prepared.id}
   

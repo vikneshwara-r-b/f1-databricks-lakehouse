@@ -13,7 +13,7 @@ def load_raw_race_details():
     volume_subdir_path = spark.conf.get("volume_subdir_path")
     volume_path = os.path.join(volume_root_path, volume_subdir_path)
     
-    ddl_schema_str = "STRUCT<api: STRING, championship: STRUCT<championshipId: STRING, championshipName: STRING, url: STRING, year: BIGINT>, race: ARRAY<STRUCT<championshipId: STRING, circuit: STRUCT<circuitId: STRING, circuitLength: STRING, circuitName: STRING, city: STRING, corners: BIGINT, country: STRING, fastestLapDriverId: STRING, fastestLapTeamId: STRING, fastestLapYear: BIGINT, firstParticipationYear: BIGINT, lapRecord: STRING, url: STRING>, fast_lap: STRUCT<fast_lap: STRING, fast_lap_driver_id: STRING, fast_lap_team_id: STRING>, laps: BIGINT, raceId: STRING, raceName: STRING, round: BIGINT, schedule: STRUCT<fp1: STRUCT<date: STRING, time: STRING>, fp2: STRUCT<date: STRING, time: STRING>, fp3: STRUCT<date: STRING, time: STRING>, qualy: STRUCT<date: STRING, time: STRING>, race: STRUCT<date: STRING, time: STRING>, sprintQualy: STRUCT<date: STRING, time: STRING>, sprintRace: STRUCT<date: STRING, time: STRING>>, teamWinner: STRUCT<constructorsChampionships: BIGINT, country: STRING, driversChampionships: BIGINT, firstAppearance: BIGINT, teamId: STRING, teamName: STRING, url: STRING>, url: STRING, winner: STRUCT<birthday: STRING, country: STRING, driverId: STRING, name: STRING, number: BIGINT, shortName: STRING, surname: STRING, url: STRING>>>, round: BIGINT, season: BIGINT, total: BIGINT, url: STRING>"
+    ddl_schema_str = "STRUCT<api: STRING, limit: BIGINT, offset: BIGINT, races: STRUCT<circuit: ARRAY<STRUCT<circuitId: STRING, circuitLength: STRING, circuitName: STRING, city: STRING, corners: BIGINT, country: STRING, fastestLapDriverId: STRING, fastestLapTeamId: STRING, fastestLapYear: BIGINT, firstParticipationYear: BIGINT, lapRecord: STRING, url: STRING>>, date: STRING, raceId: STRING, raceName: STRING, results: ARRAY<STRUCT<driver: STRUCT<birthday: STRING, driverId: STRING, name: STRING, nationality: STRING, number: BIGINT, shortName: STRING, surname: STRING, url: STRING>, fastLap: STRING, grid: STRING, points: BIGINT, position: STRING, retired: STRING, team: STRUCT<constructorsChampionships: BIGINT, driversChampionships: BIGINT, firstAppareance: BIGINT, nationality: STRING, teamId: STRING, teamName: STRING, url: STRING>, time: STRING>>, round: STRING, time: STRING, url: STRING>, season: BIGINT, total: BIGINT, url: STRING>"
     native_schema = StructType.fromDDL(ddl_schema_str)
 
     # 3. Read Auto Loader stream (removed conflicting options)
@@ -33,7 +33,7 @@ def load_raw_race_details():
     return final_df
 
 @dp.table(
-    name="quarantine_race",
+    name="race_raw_quarantined",
     comment="Stores invalid or corrupt JSON records caught by Auto Loader rescued data column."
 )
 def load_quarantine_race_details():
@@ -44,8 +44,8 @@ def load_quarantine_race_details():
     )
 
 @dp.table(
-    name="race_data_nested",
-    comment="race details data ready for flattening and downstream transformations."
+    name="race_results_nested",
+    comment="race results data ready for flattening and downstream transformations."
 )
 def load_nested_race_data():
    race_data_nested_df = (
@@ -53,12 +53,13 @@ def load_nested_race_data():
         .filter(F.col("_rescued_data").isNull())
         .select(
         F.col("url").alias("api_url"),
-        F.col("championship.championshipId").alias("championship_id"),
-        F.col("championship.championshipName").alias("championship_name"),
-        F.col("championship.year").alias("championship_year"),
-        F.col("race").alias("race_data_nested"),
-        F.col("season").alias("season_no"),
-        F.col("round").alias("round_no"),
+        F.col("season").alias("season_year"),
+        F.col("races.round").alias("round_no"),
+        F.col("races.date").alias("round_date"),
+        F.col("races.raceId").alias("race_id"),
+        F.col("races.raceName").alias("race_name"),
+        F.col("races.circuit").alias("circuit_nested"),
+        F.col("races.results").alias("results_nested"),
         "source_file_name",
         "load_date_time"
         )
