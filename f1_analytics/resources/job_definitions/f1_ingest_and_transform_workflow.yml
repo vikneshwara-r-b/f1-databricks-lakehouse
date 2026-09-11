@@ -14,7 +14,7 @@ resources:
         - name: f1_api_export_filename_prefix
           default: f1_api_export
         - name: volume_root_path
-          default: /Volumes/${var.catalog}/${var.raw_zone_schema_name}/${var.raw_volume_name}
+          default: /Volumes/${var.catalog}/${resources.schemas.bronze_schema.name}/${var.raw_volume_name}
         - name: volume_subdir_path
           default: race_results_dumps
         - name: f1_api_base_url
@@ -44,6 +44,26 @@ resources:
             - task_key: extract_api
           pipeline_task:
             pipeline_id: ${resources.pipelines.f1_load_to_prepared.id}
+
+        # Step-3: Transform F1 data into curated zone
+        - task_key: curated_zone_transform
+          max_retries: 0
+          min_retry_interval_millis: 0
+          retry_on_timeout: false
+          depends_on:
+            - task_key: load_into_raw_and_prepared
+          pipeline_task:
+            pipeline_id: ${resources.pipelines.f1_curated_transformation.id}
+
+        # Step-4: Transform F1 data into modelled zone
+        - task_key: modelled_zone_transform
+          max_retries: 0
+          min_retry_interval_millis: 0
+          retry_on_timeout: false
+          depends_on:
+            - task_key: curated_zone_transform
+          pipeline_task:
+            pipeline_id: ${resources.pipelines.f1_analytics_transformation.id}
   
       # Timeout and retry configuration
       timeout_seconds: 0

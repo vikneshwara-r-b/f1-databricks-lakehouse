@@ -10,6 +10,10 @@ resources:
       name: ${var.curated_zone_schema_name}
       catalog_name: ${var.catalog}
       comment: 'Silver Layer for F1 analytics project'
+    gold_schema:
+      name: ${var.analytics_zone_schema_name}
+      catalog_name: ${var.catalog}
+      comment: 'Gold Layer for F1 analytics project'
 
   volumes:
     raw_volume:

@@ -1,9 +1,7 @@
-# The main pipeline for f1_analytics
-
 resources:
   pipelines:
-    f1_load_to_curated:
-      name: f1_load_to_curated
+    f1_curated_transformation:
+      name: f1_curated_transformation
       catalog: ${var.catalog}
       schema: ${resources.schemas.silver_schema.name}
       serverless: true

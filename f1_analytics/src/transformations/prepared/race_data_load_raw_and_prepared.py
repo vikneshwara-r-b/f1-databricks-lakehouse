@@ -71,7 +71,7 @@ def load_valid_race_results():
     name="race_results_unnested",
     comment="race results information in unnested way",
     schema="""
-    race_Id string,driver_Id string,team_Id string,circuit_Id string,race_Name string,race_Round integer
+    season_year integer,race_Id string,driver_Id string,team_Id string,circuit_Id string,race_Name string,race_Round integer
     ,race_Date date,race_Time string,driver_Race_Grid_Position string,driver_Race_Final_Position string
     ,driver_Race_Points float,driver_Race_Fast_Lap string,driver_Race_Gap_With_Win_Time string,load_date_time timestamp
     """
@@ -80,6 +80,7 @@ def load_unnested_race_results():
    nested_df = dp.readStream("race_results_valid").withColumn("value",  F.explode(F.col("results_nested")))
    race_results_unnested_df = (
         nested_df.select(
+        F.col("season_year").cast("integer"),
         "race_Id",
         F.col("value.driver.driverId").alias("driver_Id"),
         F.col("value.team.teamId").alias("team_Id"),

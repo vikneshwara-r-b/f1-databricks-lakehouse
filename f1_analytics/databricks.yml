@@ -16,6 +16,8 @@ variables:
     description: Raw zone Schema Name
   curated_zone_schema_name:
     description: Curated zone Schema Name
+  analytics_zone_schema_name:
+    description: Analytics zone Schema Name
   raw_volume_name:
     description: Unity Catalog Raw Volume Name
   raw_volume_subdir_path:
@@ -35,6 +37,7 @@ targets:
       catalog: workspace
       raw_zone_schema_name: raw
       curated_zone_schema_name: curated
+      analytics_zone_schema_name: analytics
       raw_volume_name: f1_api_export
       raw_volume_subdir_path: race_results_dumps
   prod:
@@ -47,5 +50,6 @@ targets:
       catalog: workspace
       raw_zone_schema_name: raw
       curated_zone_schema_name: curated
+      analytics_zone_schema_name: analytics
       raw_volume_name: f1_api_export
       raw_volume_subdir_path: race_results_dumps
