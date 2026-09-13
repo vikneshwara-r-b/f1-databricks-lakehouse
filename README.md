@@ -35,11 +35,15 @@ Each medallion zone has its own ER diagram below, reflecting the tables that pip
 
 `f1_load_to_prepared` — Auto Loader ingestion, quarantine, and flattening of the source JSON.
 
+Every raw table carries two timestamps, and the distinction matters: `load_date_time` is stamped with `current_timestamp()` at pipeline run time, so every row in the same Auto Loader micro-batch gets an identical value. `source_file_load_date` comes from Auto Loader's `_metadata.file_modification_time` instead — the file's own timestamp — and is what downstream SCD2 sequencing actually relies on to tell rows apart within a batch.
+
 ![Raw layer ER diagram](docs/images/raw_layer_er_diagram.png)
 
 ### Curated layer
 
 `f1_curated_transformation` — the conformed star schema. Dimensions are maintained as **SCD Type 2** (full history, via `dp.create_auto_cdc_flow`), the fact table as **SCD Type 1** (latest state only).
+
+Dimension SCD2 flows sequence on `race_Date`, not a load timestamp — `race_Date` reflects when the underlying event actually happened, so a driver's record updates in race-chronological order regardless of the order files happen to get processed in.
 
 ![Curated layer ER diagram](docs/images/curated_layer_er_diagram.png)
 
