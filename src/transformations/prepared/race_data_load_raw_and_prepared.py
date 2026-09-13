@@ -27,6 +27,7 @@ def load_raw_race_details():
         .option("recursiveFileLookup", "true")
         .load(volume_path)
         .withColumn("source_file_name", F.col("_metadata.file_name"))
+        .withColumn("source_file_load_date", F.col("_metadata.file_modification_time"))
         .withColumn("load_date_time", F.current_timestamp())
     )
 
@@ -62,6 +63,7 @@ def load_valid_race_results():
         F.col("races.circuit").alias("circuit_nested"),
         F.col("races.results").alias("results_nested"),
         "source_file_name",
+        "source_file_load_date",
         "load_date_time"
         )
     )
@@ -73,7 +75,8 @@ def load_valid_race_results():
     schema="""
     season_year integer,race_Id string,driver_Id string,team_Id string,circuit_Id string,race_Name string,race_Round integer
     ,race_Date date,race_Time string,driver_Race_Grid_Position string,driver_Race_Final_Position string
-    ,driver_Race_Points float,driver_Race_Fast_Lap string,driver_Race_Gap_With_Win_Time string,load_date_time timestamp
+    ,driver_Race_Points float,driver_Race_Fast_Lap string,driver_Race_Gap_With_Win_Time string
+    ,source_file_load_date timestamp,load_date_time timestamp
     """
 )
 def load_unnested_race_results():
@@ -94,6 +97,7 @@ def load_unnested_race_results():
         F.col("value.points").cast("float").alias("driver_Race_Points"),
         F.col("value.fastLap").alias("driver_Race_Fast_Lap"),
         F.col("value.time").alias("driver_Race_Gap_With_Win_Time"),
+        "source_file_load_date",
         "load_date_time"
         )
    )
@@ -104,7 +108,7 @@ def load_unnested_race_results():
     comment="race drivers information",
     schema = """
     driver_Id string,name string,surname string,shortName string
-    ,nationality string,birthday date,number integer,load_date_time timestamp
+    ,nationality string,birthday date,number integer,race_Date date,load_date_time timestamp
     """
 )
 def load_race_driver_info():
@@ -118,6 +122,7 @@ def load_race_driver_info():
         F.col("value.driver.nationality").alias("nationality"),
         F.col("value.driver.birthday").cast("date").alias("birthday"),
         F.col("value.driver.number").cast("integer").alias("number"),
+        "race_Date",
         "load_date_time"
         )
    )
@@ -129,7 +134,7 @@ def load_race_driver_info():
     comment="race teams information",
     schema = """
     team_Id string,name string,nationality string,first_Appearance integer
-    ,constructors_Championships integer,drivers_Championships integer,load_date_time timestamp
+    ,constructors_Championships integer,drivers_Championships integer,race_Date date,load_date_time timestamp
     """
 )
 def load_race_teams_info():
@@ -142,6 +147,7 @@ def load_race_teams_info():
             F.col("value.team.firstAppareance").cast("integer").alias("first_Appearance"),
             F.col("value.team.constructorsChampionships").cast("integer").alias("constructors_championships"),
             F.col("value.team.driversChampionships").cast("integer").alias("drivers_championships"),
+            "race_Date",
             "load_date_time"
         ).distinct()
    )
@@ -153,7 +159,7 @@ def load_race_teams_info():
     schema = """
     circuit_Id string,name string,city string,country string,length string
     ,corners integer,first_Participation_Year integer,lap_Record string
-    ,fastest_Lap_Driver_Id string,fastest_Lap_Team_Id string,fastest_Lap_Year integer,load_date_time timestamp
+    ,fastest_Lap_Driver_Id string,fastest_Lap_Team_Id string,fastest_Lap_Year integer,race_Date date,load_date_time timestamp
     """
 )
 def load_race_circuits_info():
@@ -170,6 +176,7 @@ def load_race_circuits_info():
             F.expr("circuit_nested[0].fastestLapDriverId").alias("fastest_Lap_Driver_Id"),
             F.expr("circuit_nested[0].fastestLapTeamId").alias("fastest_Lap_Team_Id"),
             F.expr("circuit_nested[0].fastestLapYear").cast("integer").alias("fastest_Lap_Year"),
+            "race_Date",
             "load_date_time"
         )
    )

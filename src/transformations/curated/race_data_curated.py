@@ -24,7 +24,7 @@ dp.create_auto_cdc_flow(
   target = target_drivers_table,
   source = source_drivers_table,
   keys = ["driver_Id"],
-  sequence_by = F.col("load_date_time"),
+  sequence_by = F.col("race_Date"),
   stored_as_scd_type = 2
 )
 
@@ -38,7 +38,7 @@ dp.create_auto_cdc_flow(
   target = target_teams_table,
   source = source_teams_table,
   keys = ["team_id"],
-  sequence_by = F.col("load_date_time"),
+  sequence_by = F.col("race_Date"),
   stored_as_scd_type = 2
 )
 
@@ -52,7 +52,7 @@ dp.create_auto_cdc_flow(
   target = target_circuits_table,
   source = source_circuits_table,
   keys = ["circuit_Id"],
-  sequence_by = F.col("load_date_time"),
+  sequence_by = F.col("race_Date"),
   stored_as_scd_type = 2
 )
 
