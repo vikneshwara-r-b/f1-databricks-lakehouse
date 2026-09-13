@@ -110,7 +110,7 @@ When prompted, paste in the personal access token generated above.
 
 ### 3. Review variables
 
-Check `databricks.yml` for the `dev` target — by default it deploys into the `workspace` catalog with `raw` / `curated` / `analytics` schemas. Adjust `catalog`, schema names, or the workspace `host` as needed.
+Check `databricks.yml` for the `dev` target — by default it deploys into the `workspace` catalog with `raw` / `curated` / `analytics` schemas. Adjust `catalog` or schema names as needed. The workspace itself is whichever one you authenticated against in Step 2 — `databricks.yml` doesn't pin a `host`, so switching workspaces is just a matter of re-running `databricks auth login` against a different one.
 
 ### 4. Create the catalog
 
@@ -126,7 +126,7 @@ databricks bundle validate -t dev
 databricks bundle deploy -t dev
 ```
 
-This creates the schemas and volume, the three Lakeflow pipelines, and the orchestrating job (prefixed `[dev <you>]` in development mode).
+This creates the schemas and volume, the three Lakeflow pipelines, and the orchestrating job (prefixed `[dev <your_databricks_username>]` in development mode).
 
 ### 6. Run the pipeline
 
