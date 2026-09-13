@@ -112,7 +112,14 @@ When prompted, paste in the personal access token generated above.
 
 Check `databricks.yml` for the `dev` target — by default it deploys into the `workspace` catalog with `raw` / `curated` / `analytics` schemas. Adjust `catalog`, schema names, or the workspace `host` as needed.
 
-### 4. Validate and deploy
+### 4. Create the catalog
+
+The bundle creates the `raw` / `curated` / `analytics` **schemas** and the raw volume inside whichever catalog you point it at (see `resources/databricks_entity_creation/base_objects_creation.yml`) — but it does not create the **catalog** itself.
+
+- **`dev` target:** no action needed. It uses the built-in `workspace` catalog, which every Unity Catalog–enabled workspace already has.
+- **`prod` target (or any custom catalog name):** run `src/utility/utiltiy_notebook.ipynb` once in your workspace before deploying. Set its `catalog_name` widget to match the `catalog` variable for that target — the default is `f1_analytics`, matching the `prod` target in `databricks.yml`. The notebook does exactly one thing: `CREATE CATALOG IF NOT EXISTS <catalog_name>`.
+
+### 5. Validate and deploy
 
 ```bash
 databricks bundle validate -t dev
@@ -121,7 +128,7 @@ databricks bundle deploy -t dev
 
 This creates the schemas and volume, the three Lakeflow pipelines, and the orchestrating job (prefixed `[dev <you>]` in development mode).
 
-### 5. Run the pipeline
+### 6. Run the pipeline
 
 ```bash
 databricks bundle run f1_ingest_and_transform_workflow -t dev
@@ -134,7 +141,7 @@ databricks bundle run f1_ingest_and_transform_workflow -t dev \
   --params f1_season_year=2023,f1_season_round=5
 ```
 
-### 6. Query the results
+### 7. Query the results
 
 ```sql
 SELECT driver_name, team_name, wins, podiums, total_points
