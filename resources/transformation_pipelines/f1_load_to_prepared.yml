@@ -14,5 +14,5 @@ resources:
             include: ../../src/transformations/prepared/**
       
       configuration:
-        volume_root_path: /Volumes/workspace/${resources.schemas.bronze_schema.name}/${var.raw_volume_name}
+        volume_root_path: /Volumes/${var.catalog}/${resources.schemas.bronze_schema.name}/${var.raw_volume_name}
         volume_subdir_path: ${var.raw_volume_subdir_path}

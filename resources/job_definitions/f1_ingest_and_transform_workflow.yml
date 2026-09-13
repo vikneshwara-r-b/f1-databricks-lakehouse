@@ -1,4 +1,4 @@
-# Databricks Workflow Definition for Novacart use case study
+# Databricks Workflow Definition for the F1 analytics use case study
 resources:
 
   jobs:
